@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -30,72 +31,98 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 221.2 83.2% 53.3%;
 
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
-
-@layer base {
   * {
     @apply border-border;
   }
+  
+  html, body {
+    @apply h-full;
+  }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+  }
+
+  #root {
+    @apply h-full;
+  }
+}
+
+@layer components {
+  .phone-frame {
+    @apply relative bg-white rounded-[2.5rem] shadow-xl overflow-hidden;
+    width: 375px;
+    height: 812px;
+  }
+
+  .phone-screen {
+    @apply absolute top-0 left-0 right-0 bottom-0 overflow-hidden;
+    top: 24px;
+    left: 12px;
+    right: 12px;
+    bottom: 24px;
+    border-radius: 2rem;
+  }
+
+  .status-bar {
+    @apply flex justify-between items-center px-5 py-2.5 bg-white text-black font-medium;
+    height: 44px;
+  }
+
+  .pin-button {
+    @apply flex items-center justify-center text-2xl font-semibold bg-white hover:bg-gray-100 w-12 h-12 rounded-full transition-colors;
+  }
+
+  .pin-display {
+    @apply flex gap-3 justify-center my-8;
+  }
+
+  .pin-dot {
+    @apply w-4 h-4 rounded-full border border-gray-300;
+  }
+
+  .pin-dot-filled {
+    @apply bg-black;
+  }
+
+  .pin-dot-error {
+    @apply border-red-500;
+  }
+
+  .page-transition-enter {
+    @apply opacity-0 transform translate-x-full;
+  }
+
+  .page-transition-enter-active {
+    @apply opacity-100 transform translate-x-0 transition-all duration-300;
+  }
+
+  .page-transition-exit {
+    @apply opacity-100 transform translate-x-0;
+  }
+
+  .page-transition-exit-active {
+    @apply opacity-0 transform -translate-x-full transition-all duration-300;
+  }
+
+  .button-primary {
+    @apply bg-app-blue text-white px-4 py-2 rounded-lg w-full transition-all hover:bg-opacity-90 active:scale-[0.98];
+  }
+
+  .input-field {
+    @apply border border-gray-300 rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-app-blue;
+  }
+
+  .settings-item {
+    @apply flex items-center justify-between py-4 border-b border-gray-100;
+  }
+
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 rounded-xl shadow-sm;
   }
 }
