@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
 
@@ -22,7 +21,7 @@ type AuthContextType = {
   resetPinAttempts: () => void;
 };
 
-const PIN = '1234'; // Default PIN code
+const PIN = '1111'; // Changed PIN code from 1234 to 1111
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
