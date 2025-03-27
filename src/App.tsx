@@ -12,6 +12,8 @@ import { NetworkProvider, useNetwork } from "@/context/NetworkContext";
 // Pages
 import Dashboard from "./pages/Dashboard";
 import Debtors from "./pages/Debtors";
+import DebtorDetail from "./pages/DebtorDetail";
+import DebtorCreate from "./pages/DebtorCreate";
 import Calendar from "./pages/Calendar";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
@@ -63,6 +65,8 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/debtors" element={<ProtectedRoute><Debtors /></ProtectedRoute>} />
+            <Route path="/debtors/:id" element={<ProtectedRoute><DebtorDetail /></ProtectedRoute>} />
+            <Route path="/debtors/add" element={<ProtectedRoute><DebtorCreate /></ProtectedRoute>} />
             <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
@@ -73,6 +77,8 @@ const AppContent = () => {
             <Routes>
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/debtors" element={<ProtectedRoute><Debtors /></ProtectedRoute>} />
+              <Route path="/debtors/:id" element={<ProtectedRoute><DebtorDetail /></ProtectedRoute>} />
+              <Route path="/debtors/add" element={<ProtectedRoute><DebtorCreate /></ProtectedRoute>} />
               <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
