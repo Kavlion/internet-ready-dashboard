@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 
 const LoginScreen = () => {
   const { login } = useAuth();
@@ -23,8 +24,28 @@ const LoginScreen = () => {
     setError('');
     
     try {
-      const success = await login(username, password);
-      if (!success) {
+      // Check for hardcoded credentials
+      if (username === 'admin' && password === '1111') {
+        // Hardcoded login success
+        const mockUserData = {
+          id: '1',
+          username: 'admin',
+          role: 'admin',
+          name: 'Admin User'
+        };
+        
+        // Store a mock token
+        localStorage.setItem('accessToken', 'mock-token-for-admin');
+        localStorage.setItem('refreshToken', 'mock-refresh-token');
+        
+        // Call login with successful result
+        await login(username, password);
+        
+        toast({
+          title: "Muvaffaqiyatli kirish",
+          description: "Xush kelibsiz, admin!",
+        });
+      } else {
         setError('Foydalanuvchi nomi yoki parol noto\'g\'ri');
       }
     } catch (error) {

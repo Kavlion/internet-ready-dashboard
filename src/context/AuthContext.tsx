@@ -1,7 +1,6 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
-import { auth } from '@/services/api';
 
 type User = {
   id: string;
@@ -41,7 +40,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const token = localStorage.getItem('accessToken');
         if (token) {
-          const userData = await auth.profile();
+          // Mock user data instead of API call
+          const userData = {
+            id: '1',
+            username: 'admin',
+            role: 'admin',
+            name: 'Admin User'
+          };
+          
           setUser(userData);
           setIsAuthenticated(true);
           
@@ -66,18 +72,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (username: string, password: string) => {
     try {
       setIsLoading(true);
-      const data = await auth.login(username, password);
       
-      // Store tokens
-      localStorage.setItem('accessToken', data.accessToken);
-      if (data.refreshToken) {
-        localStorage.setItem('refreshToken', data.refreshToken);
+      // Hardcoded login check
+      if (username === 'admin' && password === '1111') {
+        // Set mock user data
+        const userData = {
+          id: '1',
+          username: 'admin',
+          role: 'admin',
+          name: 'Admin User'
+        };
+        
+        // Store tokens
+        localStorage.setItem('accessToken', 'mock-token-for-admin');
+        localStorage.setItem('refreshToken', 'mock-refresh-token');
+        
+        // Store user data
+        setUser(userData);
+        setIsAuthenticated(true);
+        return true;
+      } else {
+        toast({
+          title: "Login failed",
+          description: "Invalid username or password",
+          variant: "destructive",
+        });
+        return false;
       }
-      
-      // Store user data
-      setUser(data.user);
-      setIsAuthenticated(true);
-      return true;
     } catch (error) {
       toast({
         title: "Login failed",
@@ -140,7 +161,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      await auth.logout();
+      // No need to call logout API
+      console.log("Logging out");
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
