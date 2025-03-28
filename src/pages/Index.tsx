@@ -1,24 +1,42 @@
-
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
+import { Eye } from "lucide-react";
+import { formatUZCurrency } from "@/lib/utils";
+import { stores } from "@/services/api";
 
 const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const [totalDebt, setTotalDebt] = useState(135214200);
 
   useEffect(() => {
     // If user is already logged in, redirect to dashboard
     if (isAuthenticated) {
-      navigate("/");
+      navigate("/dashboard");
     }
+    
+    // Fetch total debt statistics
+    const fetchTotalDebt = async () => {
+      try {
+        const data = await stores.getStatistics();
+        if (data && data.totalDebt) {
+          setTotalDebt(data.totalDebt);
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        // Keep fallback data in state
+      }
+    };
+    
+    fetchTotalDebt();
   }, [isAuthenticated, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
-      <Card className="w-full max-w-md border-none shadow-lg">
+      <Card className="w-full max-w-md border-none shadow-lg mb-6">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Welcome to Finance App</CardTitle>
           <CardDescription className="text-center">
@@ -26,6 +44,17 @@ const Index = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
+          {/* Total Debt Card */}
+          <div className="bg-green-500 text-white p-6 rounded-xl shadow-md mb-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-white text-opacity-80">Umumiy nasiya:</p>
+                <h2 className="text-2xl font-bold">{formatUZCurrency(totalDebt)} so'm</h2>
+              </div>
+              <Eye size={24} className="text-white" />
+            </div>
+          </div>
+          
           <div className="flex flex-col gap-2 text-center">
             <p className="text-sm text-gray-500">
               Access your account to view your dashboard, manage debtors, 
@@ -76,7 +105,7 @@ const Index = () => {
         </CardFooter>
       </Card>
       
-      <div className="mt-8 text-center text-sm text-gray-500">
+      <div className="text-center text-sm text-gray-500">
         <p>© {new Date().getFullYear()} Finance App. All rights reserved.</p>
         <p className="mt-2">Version 1.0.0</p>
       </div>
