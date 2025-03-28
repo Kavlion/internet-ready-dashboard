@@ -23,7 +23,7 @@ const Debtors = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 500);
   const [isLoading, setIsLoading] = useState(true);
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set<string>());
 
   useEffect(() => {
     const fetchDebtors = async () => {
@@ -42,16 +42,16 @@ const Debtors = () => {
           ];
           setDebtorsList(fallbackData);
           
-          // Set initial favorites
-          const initialFavorites = new Set(
+          // Set initial favorites with explicit string type
+          const initialFavorites = new Set<string>(
             fallbackData.filter(d => d.favorite).map(d => d.id)
           );
           setFavoriteIds(initialFavorites);
         } else {
           setDebtorsList(data);
           
-          // Set initial favorites from API data
-          const initialFavorites = new Set(
+          // Set initial favorites from API data with explicit string type
+          const initialFavorites = new Set<string>(
             data.filter((d: Debtor) => d.favorite).map((d: Debtor) => d.id)
           );
           setFavoriteIds(initialFavorites);
@@ -68,8 +68,8 @@ const Debtors = () => {
         ];
         setDebtorsList(fallbackData);
         
-        // Set initial favorites
-        const initialFavorites = new Set(
+        // Set initial favorites with explicit string type
+        const initialFavorites = new Set<string>(
           fallbackData.filter(d => d.favorite).map(d => d.id)
         );
         setFavoriteIds(initialFavorites);
