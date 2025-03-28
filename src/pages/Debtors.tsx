@@ -1,7 +1,6 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, User, Home, CalendarDays, Settings, Plus, Star, Menu, Folder } from 'lucide-react';
+import { Search, User, Home, CalendarDays, Settings, Plus, Star, Menu, Folder, Eye } from 'lucide-react';
 import { debtors } from '@/services/api';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
@@ -41,9 +40,9 @@ const Debtors = () => {
         // Fallback data in case the API fails
         if (!data || data.length === 0) {
           const fallbackData = [
-            { id: '1', name: 'Rahmatulloh Madraximov', phone: '+998 91 123 45 67', totalDebt: 800000, favorite: true },
-            { id: '2', name: 'Lutfulloh To\'rayev', phone: '+998 91 123 45 67', totalDebt: 56861000, favorite: true },
-            { id: '3', name: 'Avazbek Solijonov', phone: '+998 91 123 45 67', totalDebt: 14786000 },
+            { id: '1', name: 'Lutfulloh To\'rayev', phone: '+998 91 123 45 67', totalDebt: 56861000, favorite: true },
+            { id: '2', name: 'Rahmatulloh Madraximov', phone: '+998 91 123 45 67', totalDebt: 800000, favorite: true },
+            { id: '3', name: 'Avabek Solijonov', phone: '+998 91 123 45 67', totalDebt: 14786000 },
             { id: '4', name: 'Madina Mavlonova', phone: '+998 91 123 45 67', totalDebt: 14786000 },
             { id: '5', name: 'Otabek Sulaymonov', phone: '+998 91 123 45 67', totalDebt: 10000000 },
           ];
@@ -67,9 +66,9 @@ const Debtors = () => {
         console.error('Error fetching debtors:', error);
         // Set fallback data
         const fallbackData = [
-          { id: '1', name: 'Rahmatulloh Madraximov', phone: '+998 91 123 45 67', totalDebt: 800000, favorite: true },
-          { id: '2', name: 'Lutfulloh To\'rayev', phone: '+998 91 123 45 67', totalDebt: 56861000, favorite: true },
-          { id: '3', name: 'Avazbek Solijonov', phone: '+998 91 123 45 67', totalDebt: 14786000 },
+          { id: '1', name: 'Lutfulloh To\'rayev', phone: '+998 91 123 45 67', totalDebt: 56861000, favorite: true },
+          { id: '2', name: 'Rahmatulloh Madraximov', phone: '+998 91 123 45 67', totalDebt: 800000, favorite: true },
+          { id: '3', name: 'Avabek Solijonov', phone: '+998 91 123 45 67', totalDebt: 14786000 },
           { id: '4', name: 'Madina Mavlonova', phone: '+998 91 123 45 67', totalDebt: 14786000 },
           { id: '5', name: 'Otabek Sulaymonov', phone: '+998 91 123 45 67', totalDebt: 10000000 },
         ];
@@ -168,12 +167,12 @@ const Debtors = () => {
   }, [debtorsList, favoriteIds]);
 
   return (
-    <div className={`flex flex-col h-full bg-gray-50 ${!isMobile ? 'w-full h-full' : ''}`}>
+    <div className="flex flex-col h-full bg-white w-full">
       <div className="p-4 bg-white flex items-center justify-between shadow-sm">
-        <div className="relative flex-1 max-w-xl">
+        <div className="relative flex-1 max-w-lg">
           <Input
             type="text"
-            className="pl-10"
+            className="pl-10 rounded-lg"
             placeholder={isMobile ? "Qidirish..." : "Mijozlarni qidirish..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -221,7 +220,7 @@ const Debtors = () => {
         )}
       </div>
 
-      <div className={`flex-1 p-4 overflow-auto ${!isMobile ? 'px-6' : ''}`}>
+      <div className="flex-1 p-4 overflow-auto w-full">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-app-blue"></div>
@@ -244,36 +243,36 @@ const Debtors = () => {
             </Button>
           </div>
         ) : (
-          <div className={!isMobile ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4' : 'space-y-4'}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full">
             {sortedDebtors.map((debtor, index) => (
               <Link 
                 to={`/debtors/${debtor.id}`} 
                 key={debtor.id}
-                className="block"
+                className="block w-full"
               >
                 <div 
-                  className="bg-white border border-gray-100 rounded-lg p-4 animate-scale-in shadow-sm" 
+                  className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm h-full flex flex-col" 
                   style={{ animationDelay: `${index * 0.05}s` }}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-medium text-lg">{debtor.name}</h3>
+                        <h3 className="font-medium text-base">{debtor.name}</h3>
                         <button 
                           onClick={(e) => toggleFavorite(debtor.id, e)}
                           className="ml-2 focus:outline-none"
                         >
                           <Star 
-                            size={18} 
+                            size={16} 
                             fill={favoriteIds.has(debtor.id) ? "#FFC107" : "none"} 
                             color={favoriteIds.has(debtor.id) ? "#FFC107" : "#9CA3AF"} 
                           />
                         </button>
                       </div>
                       <p className="text-sm text-gray-500">{debtor.phone}</p>
-                      <div className="mt-2">
-                        <p className="text-sm text-gray-500">Jami nasiya:</p>
-                        <p className="text-lg font-semibold text-red-500">
+                      <div className="mt-4">
+                        <p className="text-xs text-gray-500">Jami nasiya:</p>
+                        <p className="text-base font-semibold text-red-500">
                           -{formatUZCurrency(Math.abs(debtor.totalDebt))} so'm
                         </p>
                       </div>
@@ -285,6 +284,19 @@ const Debtors = () => {
           </div>
         )}
       </div>
+
+      {/* Dashboard Card - For second image implementation */}
+      {!isMobile && (
+        <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 w-11/12 max-w-lg bg-green-500 text-white p-6 rounded-lg shadow-lg">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold">135 214 200 so'm</h2>
+              <p className="text-white text-opacity-80">Umumiy nasiya:</p>
+            </div>
+            <Eye size={24} className="text-white" />
+          </div>
+        </div>
+      )}
 
       {/* Add Debtor Button - Fixed at bottom right */}
       <div className="fixed bottom-20 right-4 md:bottom-6 md:right-6">
