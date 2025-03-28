@@ -168,9 +168,9 @@ const Debtors = () => {
   }, [debtorsList, favoriteIds]);
 
   return (
-    <div className={`flex flex-col h-full bg-gray-50 ${!isMobile ? 'w-full max-w-none' : ''}`}>
-      <div className="p-4 bg-white flex items-center justify-between">
-        <div className="relative flex-1">
+    <div className={`flex flex-col h-full bg-gray-50 ${!isMobile ? 'w-full h-full' : ''}`}>
+      <div className="p-4 bg-white flex items-center justify-between shadow-sm">
+        <div className="relative flex-1 max-w-xl">
           <Input
             type="text"
             className="pl-10"
@@ -221,7 +221,7 @@ const Debtors = () => {
         )}
       </div>
 
-      <div className={`flex-1 p-4 overflow-auto ${!isMobile ? 'px-8' : ''}`}>
+      <div className={`flex-1 p-4 overflow-auto ${!isMobile ? 'px-6' : ''}`}>
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-app-blue"></div>
@@ -244,7 +244,7 @@ const Debtors = () => {
             </Button>
           </div>
         ) : (
-          <div className={`${!isMobile ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' : 'space-y-4'}`}>
+          <div className={!isMobile ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4' : 'space-y-4'}>
             {sortedDebtors.map((debtor, index) => (
               <Link 
                 to={`/debtors/${debtor.id}`} 
@@ -273,8 +273,8 @@ const Debtors = () => {
                       <p className="text-sm text-gray-500">{debtor.phone}</p>
                       <div className="mt-2">
                         <p className="text-sm text-gray-500">Jami nasiya:</p>
-                        <p className={`text-lg font-semibold ${debtor.totalDebt > 0 ? 'text-red-500' : 'text-green-500'}`}>
-                          {debtor.totalDebt > 0 ? '-' : '+'}{formatUZCurrency(Math.abs(debtor.totalDebt))} so'm
+                        <p className="text-lg font-semibold text-red-500">
+                          -{formatUZCurrency(Math.abs(debtor.totalDebt))} so'm
                         </p>
                       </div>
                     </div>
@@ -286,11 +286,11 @@ const Debtors = () => {
         )}
       </div>
 
-      {/* Add Debtor Button */}
-      <div className="fixed bottom-20 right-4 md:bottom-6">
+      {/* Add Debtor Button - Fixed at bottom right */}
+      <div className="fixed bottom-20 right-4 md:bottom-6 md:right-6">
         <Link 
           to="/debtors/add" 
-          className={`${isMobile ? 'w-14 h-14 rounded-full' : 'px-5 py-3 rounded-lg'} bg-[#4285F4] flex items-center justify-center text-white shadow-lg`}
+          className={`${isMobile ? 'w-14 h-14 rounded-full' : 'px-5 py-3 rounded-lg'} bg-[#4285F4] flex items-center justify-center text-white shadow-lg hover:bg-blue-600 transition-colors`}
         >
           {isMobile ? (
             <Plus size={24} />
@@ -305,7 +305,7 @@ const Debtors = () => {
 
       {/* Bottom Navigation for Mobile Only */}
       {isMobile && (
-        <div className="grid grid-cols-4 border-t border-gray-200 bg-white">
+        <div className="grid grid-cols-4 border-t border-gray-200 bg-white fixed bottom-0 left-0 right-0">
           <Link to="/" className="flex flex-col items-center py-3 text-gray-500">
             <Home size={20} />
             <span className="text-xs mt-1">Asosiy</span>

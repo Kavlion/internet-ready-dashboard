@@ -6,9 +6,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Format currency in UZS
+// Format currency in UZS with commas for thousands
 export function formatUZCurrency(amount: number): string {
-  return new Intl.NumberFormat('uz-UZ').format(amount);
+  return new Intl.NumberFormat('uz-UZ', {
+    maximumFractionDigits: 0
+  }).format(amount);
 }
 
 // Format phone number
