@@ -1,10 +1,13 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
+import { auth } from '@/services/api';
 
 type User = {
   id: string;
   username: string;
   role: string;
+  name?: string;
+  avatar?: string;
   [key: string]: any;
 };
 
@@ -19,9 +22,10 @@ type AuthContextType = {
   verifyPin: (pin: string) => boolean;
   logout: () => Promise<void>;
   resetPinAttempts: () => void;
+  updateUserAvatar: (avatarUrl: string) => void;
 };
 
-const PIN = '1111'; // Changed PIN code from 1234 to 1111
+const PIN = '1111';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -39,15 +43,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const token = localStorage.getItem('accessToken');
         if (token) {
-          // Mock user data instead of API call
-          const userData = {
+          try {
+            // Try to get user profile from API
+            const userData = await auth.profile();
+            if (userData) {
+              setUser(userData);
+              setIsAuthenticated(true);
+              
+              // Check if PIN was previously authenticated in this session
+              const pinVerified = sessionStorage.getItem('pinVerified');
+              if (pinVerified === 'true') {
+                setIsPinAuthenticated(true);
+              }
+              
+              setIsLoading(false);
+              return;
+            }
+          } catch (error) {
+            console.error('Error fetching user profile:', error);
+            // Fall back to mock data if API fails
+          }
+          
+          // Mock user data as fallback
+          const mockUserData = {
             id: '1',
             username: 'admin',
             role: 'admin',
-            name: 'Admin User'
+            name: 'Admin User',
+            avatar: localStorage.getItem('userAvatar') || undefined
           };
           
-          setUser(userData);
+          setUser(mockUserData);
           setIsAuthenticated(true);
           
           // Check if PIN was previously authenticated in this session
@@ -72,22 +98,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setIsLoading(true);
       
-      // Hardcoded login check
+      try {
+        // Try to get user profile from API
+        const userData = await auth.profile();
+        if (userData) {
+          setUser(userData);
+          setIsAuthenticated(true);
+          return true;
+        }
+      } catch (error) {
+        console.error('Error fetching user profile after login:', error);
+        // Fall back to mock data if API fails
+      }
+      
+      // Hardcoded login check as fallback
       if (username === 'admin' && password === '1111') {
         // Set mock user data
-        const userData = {
+        const mockUserData = {
           id: '1',
           username: 'admin',
           role: 'admin',
-          name: 'Admin User'
+          name: 'Admin User',
+          avatar: localStorage.getItem('userAvatar') || undefined
         };
         
-        // Store tokens
-        localStorage.setItem('accessToken', 'mock-token-for-admin');
-        localStorage.setItem('refreshToken', 'mock-refresh-token');
-        
         // Store user data
-        setUser(userData);
+        setUser(mockUserData);
         setIsAuthenticated(true);
         return true;
       } else {
@@ -108,6 +144,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const updateUserAvatar = (avatarUrl: string) => {
+    localStorage.setItem('userAvatar', avatarUrl);
+    setUser(prev => prev ? { ...prev, avatar: avatarUrl } : null);
   };
 
   const verifyPin = (pin: string) => {
@@ -192,6 +233,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         verifyPin,
         logout,
         resetPinAttempts,
+        updateUserAvatar,
       }}
     >
       {children}

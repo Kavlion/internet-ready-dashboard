@@ -18,6 +18,7 @@ import Calendar from "./pages/Calendar";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Index from "./pages/Index";
 
 // Components
 import PhoneFrame from "./components/PhoneFrame";
@@ -59,11 +60,12 @@ const AppContent = () => {
   }
   
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4 md:p-10">
-      <div className={isMobile ? "w-full h-full" : "shadow-2xl"}>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-0 sm:p-4 md:p-6">
+      <div className={isMobile ? "w-full h-full" : "w-full max-w-6xl shadow-2xl"}>
         {isMobile ? (
           <Routes>
-            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/" element={<Index />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/debtors" element={<ProtectedRoute><Debtors /></ProtectedRoute>} />
             <Route path="/debtors/:id" element={<ProtectedRoute><DebtorDetail /></ProtectedRoute>} />
             <Route path="/debtors/add" element={<ProtectedRoute><DebtorCreate /></ProtectedRoute>} />
@@ -75,7 +77,8 @@ const AppContent = () => {
         ) : (
           <PhoneFrame>
             <Routes>
-              <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/" element={<Index />} />
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/debtors" element={<ProtectedRoute><Debtors /></ProtectedRoute>} />
               <Route path="/debtors/:id" element={<ProtectedRoute><DebtorDetail /></ProtectedRoute>} />
               <Route path="/debtors/add" element={<ProtectedRoute><DebtorCreate /></ProtectedRoute>} />

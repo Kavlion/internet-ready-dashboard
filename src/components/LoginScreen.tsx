@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { auth } from '@/services/api';
 
 const LoginScreen = () => {
   const { login } = useAuth();
@@ -24,31 +25,45 @@ const LoginScreen = () => {
     setError('');
     
     try {
-      // Check for hardcoded credentials
-      if (username === 'admin' && password === '1111') {
-        // Hardcoded login success
-        const mockUserData = {
-          id: '1',
-          username: 'admin',
-          role: 'admin',
-          name: 'Admin User'
-        };
-        
-        // Store a mock token
-        localStorage.setItem('accessToken', 'mock-token-for-admin');
-        localStorage.setItem('refreshToken', 'mock-refresh-token');
+      const response = await auth.login(username, password);
+      
+      if (response && response.accessToken) {
+        // Store tokens from API response
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken || '');
         
         // Call login with successful result
         await login(username, password);
         
         toast({
           title: "Muvaffaqiyatli kirish",
-          description: "Xush kelibsiz, admin!",
+          description: "Xush kelibsiz!",
         });
       } else {
-        setError('Foydalanuvchi nomi yoki parol noto\'g\'ri');
+        // If we have the hardcoded login as fallback for testing
+        if (username === 'admin' && password === '1111') {
+          const mockUserData = {
+            id: '1',
+            username: 'admin',
+            role: 'admin',
+            name: 'Admin User'
+          };
+          
+          localStorage.setItem('accessToken', 'mock-token-for-admin');
+          localStorage.setItem('refreshToken', 'mock-refresh-token');
+          
+          await login(username, password);
+          
+          toast({
+            title: "Muvaffaqiyatli kirish",
+            description: "Xush kelibsiz, admin!",
+          });
+        } else {
+          setError('Foydalanuvchi nomi yoki parol noto\'g\'ri');
+        }
       }
     } catch (error) {
+      console.error('Login error:', error);
       setError('Tizimga kirishda xatolik yuz berdi');
     } finally {
       setIsLoading(false);
@@ -56,7 +71,7 @@ const LoginScreen = () => {
   };
 
   return (
-    <div className="min-h-full bg-white flex flex-col">
+    <div className="min-h-screen w-full bg-white flex flex-col">
       <div className="flex-1 flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center mb-8">
@@ -69,13 +84,13 @@ const LoginScreen = () => {
             </p>
           </div>
 
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleLogin} className="w-full">
             <div className="space-y-4">
               <div className="relative">
                 <label className="text-sm font-medium mb-1 block">Login</label>
                 <input
                   type="text"
-                  className="input-field"
+                  className="input-field w-full"
                   placeholder="admin"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -87,7 +102,7 @@ const LoginScreen = () => {
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    className="input-field pr-10"
+                    className="input-field w-full pr-10"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -108,7 +123,7 @@ const LoginScreen = () => {
 
               <button 
                 type="submit" 
-                className="button-primary"
+                className="button-primary w-full"
                 disabled={isLoading}
               >
                 {isLoading ? 'Kutilmoqda...' : 'Kirish'}
