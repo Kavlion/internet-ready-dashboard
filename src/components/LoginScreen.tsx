@@ -25,6 +25,7 @@ const LoginScreen = () => {
     setError('');
     
     try {
+      // First, try to authenticate through the API
       const response = await auth.login(username, password);
       
       if (response && response.accessToken) {
@@ -40,31 +41,33 @@ const LoginScreen = () => {
           description: "Xush kelibsiz!",
         });
       } else {
-        // If we have the hardcoded login as fallback for testing
-        if (username === 'admin' && password === '1111') {
-          const mockUserData = {
-            id: '1',
-            username: 'admin',
-            role: 'admin',
-            name: 'Admin User'
-          };
-          
-          localStorage.setItem('accessToken', 'mock-token-for-admin');
-          localStorage.setItem('refreshToken', 'mock-refresh-token');
-          
-          await login(username, password);
-          
-          toast({
-            title: "Muvaffaqiyatli kirish",
-            description: "Xush kelibsiz, admin!",
-          });
-        } else {
-          setError('Foydalanuvchi nomi yoki parol noto\'g\'ri');
-        }
+        // Fallback to hardcoded login for testing
+        throw new Error('API login failed');
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError('Tizimga kirishda xatolik yuz berdi');
+      
+      // Fallback to hardcoded login
+      if (username === 'admin' && password === '1111') {
+        const mockUserData = {
+          id: '1',
+          username: 'admin',
+          role: 'admin',
+          name: 'Admin User'
+        };
+        
+        localStorage.setItem('accessToken', 'mock-token-for-admin');
+        localStorage.setItem('refreshToken', 'mock-refresh-token');
+        
+        await login(username, password);
+        
+        toast({
+          title: "Muvaffaqiyatli kirish",
+          description: "Xush kelibsiz, admin!",
+        });
+      } else {
+        setError('Foydalanuvchi nomi yoki parol noto\'g\'ri');
+      }
     } finally {
       setIsLoading(false);
     }

@@ -61,7 +61,7 @@ const AppContent = () => {
   
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-0 sm:p-4 md:p-6">
-      <div className={isMobile ? "w-full h-full" : "w-full max-w-6xl shadow-2xl"}>
+      <div className={isMobile ? "w-full h-full" : "w-full max-w-screen-xl shadow-2xl"}>
         {isMobile ? (
           <Routes>
             <Route path="/" element={<Index />} />
@@ -75,7 +75,7 @@ const AppContent = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         ) : (
-          <PhoneFrame>
+          <div className="w-full h-full bg-white overflow-hidden">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -87,7 +87,7 @@ const AppContent = () => {
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </PhoneFrame>
+          </div>
         )}
       </div>
     </div>
