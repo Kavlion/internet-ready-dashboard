@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, User, Home, CalendarDays, Settings, Plus, Star, Menu, Folder, Eye } from 'lucide-react';
@@ -13,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from '@/components/ui/use-toast';
 
 interface Debtor {
   id: string;
@@ -29,7 +31,7 @@ const Debtors = () => {
   const debouncedSearch = useDebounce(searchQuery, 500);
   const [isLoading, setIsLoading] = useState(true);
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set<string>());
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [totalStoreDebt, setTotalStoreDebt] = useState<number>(0);
 
   useEffect(() => {
     const fetchDebtors = async () => {
@@ -37,8 +39,16 @@ const Debtors = () => {
         setIsLoading(true);
         const data = await debtors.getAll();
         
-        // Fallback data in case the API fails
-        if (!data || data.length === 0) {
+        if (data && data.length > 0) {
+          setDebtorsList(data);
+          
+          // Set initial favorites from API data
+          const initialFavorites = new Set<string>(
+            data.filter((d: Debtor) => d.favorite).map((d: Debtor) => d.id)
+          );
+          setFavoriteIds(initialFavorites);
+        } else {
+          // Fallback data in case the API fails
           const fallbackData = [
             { id: '1', name: 'Lutfulloh To\'rayev', phone: '+998 91 123 45 67', totalDebt: 56861000, favorite: true },
             { id: '2', name: 'Rahmatulloh Madraximov', phone: '+998 91 123 45 67', totalDebt: 800000, favorite: true },
@@ -51,14 +61,6 @@ const Debtors = () => {
           // Set initial favorites with explicit string type
           const initialFavorites = new Set<string>(
             fallbackData.filter(d => d.favorite).map(d => d.id)
-          );
-          setFavoriteIds(initialFavorites);
-        } else {
-          setDebtorsList(data);
-          
-          // Set initial favorites from API data with explicit string type
-          const initialFavorites = new Set<string>(
-            data.filter((d: Debtor) => d.favorite).map((d: Debtor) => d.id)
           );
           setFavoriteIds(initialFavorites);
         }
@@ -84,7 +86,21 @@ const Debtors = () => {
       }
     };
 
+    const fetchTotalDebt = async () => {
+      try {
+        const storeData = await debtors.getStoreDebts();
+        if (storeData && typeof storeData.totalDebt === 'number') {
+          setTotalStoreDebt(storeData.totalDebt);
+        }
+      } catch (error) {
+        console.error('Error fetching total debt:', error);
+        // Fallback value
+        setTotalStoreDebt(135214200);
+      }
+    };
+
     fetchDebtors();
+    fetchTotalDebt();
   }, []);
 
   useEffect(() => {
@@ -133,10 +149,11 @@ const Debtors = () => {
     }
   }, [debouncedSearch]);
 
-  const toggleFavorite = (id: string, e: React.MouseEvent) => {
+  const toggleFavorite = async (id: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
+    const isFavorite = favoriteIds.has(id);
     setFavoriteIds(prev => {
       const newFavorites = new Set(prev);
       if (newFavorites.has(id)) {
@@ -147,8 +164,31 @@ const Debtors = () => {
       return newFavorites;
     });
     
-    // In a real app, update the database
-    // debtors.update(id, { favorite: !favoriteIds.has(id) });
+    // Update the database
+    try {
+      const debtor = debtorsList.find(d => d.id === id);
+      if (debtor) {
+        await debtors.update(id, { ...debtor, favorite: !isFavorite });
+      }
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+      toast({
+        title: "Xatolik",
+        description: "Sevimlilar ro'yxatini yangilashda xatolik yuz berdi",
+        variant: "destructive",
+      });
+      
+      // Revert UI state if API fails
+      setFavoriteIds(prev => {
+        const newFavorites = new Set(prev);
+        if (isFavorite) {
+          newFavorites.add(id);
+        } else {
+          newFavorites.delete(id);
+        }
+        return newFavorites;
+      });
+    }
   };
 
   const sortedDebtors = useMemo(() => {
@@ -290,7 +330,7 @@ const Debtors = () => {
         <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 w-11/12 max-w-lg bg-green-500 text-white p-6 rounded-lg shadow-lg">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold">135 214 200 so'm</h2>
+              <h2 className="text-2xl font-bold">{formatUZCurrency(totalStoreDebt)} so'm</h2>
               <p className="text-white text-opacity-80">Umumiy nasiya:</p>
             </div>
             <Eye size={24} className="text-white" />

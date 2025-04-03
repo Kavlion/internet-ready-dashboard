@@ -33,7 +33,7 @@ const Profile = () => {
           description: "Profil rasmi muvaffaqiyatli saqlandi",
         });
         
-        // Redirect to home page after saving the image
+        // Navigate to home page after saving the image
         navigate('/');
       }
       setIsUploading(false);
@@ -99,7 +99,7 @@ const Profile = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Phone size={18} className="text-gray-400 mr-2" />
-                <span>+998 93 123 45 67</span>
+                <span>{user?.phone || '+998 93 123 45 67'}</span>
               </div>
               <CheckCircle2 size={16} className="text-app-green" />
             </div>
@@ -109,13 +109,13 @@ const Profile = () => {
             <div className="text-sm text-gray-500 mb-1">Email</div>
             <div className="flex items-center">
               <Mail size={18} className="text-gray-400 mr-2" />
-              <span>technochat@gmail.com</span>
+              <span>{user?.email || 'technochat@gmail.com'}</span>
             </div>
           </div>
 
           <div className="glass-card p-4">
             <div className="text-sm text-gray-500 mb-1">Manzil</div>
-            <p>Toshkent, Uzbekistan</p>
+            <p>{user?.address || 'Toshkent, Uzbekistan'}</p>
           </div>
         </div>
 

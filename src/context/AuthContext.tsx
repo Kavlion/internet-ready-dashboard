@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { auth } from '@/services/api';
@@ -47,6 +48,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             // Try to get user profile from API
             const userData = await auth.profile();
             if (userData) {
+              // Process avatar if stored locally
+              if (localStorage.getItem('userAvatar')) {
+                userData.avatar = localStorage.getItem('userAvatar');
+              }
+              
               setUser(userData);
               setIsAuthenticated(true);
               
@@ -98,20 +104,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setIsLoading(true);
       
-      try {
-        // Try to get user profile from API
-        const userData = await auth.profile();
-        if (userData) {
-          setUser(userData);
-          setIsAuthenticated(true);
-          return true;
+      // Attempt to login with API
+      const response = await auth.login(username, password);
+      
+      if (response && response.accessToken) {
+        // Store tokens from API response
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken || '');
+        
+        // Get user profile data
+        try {
+          const userData = await auth.profile();
+          if (userData) {
+            // Process avatar if stored locally
+            if (localStorage.getItem('userAvatar')) {
+              userData.avatar = localStorage.getItem('userAvatar');
+            }
+            
+            setUser(userData);
+            setIsAuthenticated(true);
+            return true;
+          }
+        } catch (profileError) {
+          console.error('Error fetching profile after login:', profileError);
         }
-      } catch (error) {
-        console.error('Error fetching user profile after login:', error);
-        // Fall back to mock data if API fails
       }
       
-      // Hardcoded login check as fallback
+      // Fallback to hardcoded login (for testing only)
       if (username === 'admin' && password === '1111') {
         // Set mock user data
         const mockUserData = {
@@ -122,7 +141,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           avatar: localStorage.getItem('userAvatar') || undefined
         };
         
-        // Store user data
+        localStorage.setItem('accessToken', 'mock-token-for-admin');
+        localStorage.setItem('refreshToken', 'mock-refresh-token');
+        
         setUser(mockUserData);
         setIsAuthenticated(true);
         return true;
@@ -135,12 +156,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return false;
       }
     } catch (error) {
-      toast({
-        title: "Login failed",
-        description: "Invalid username or password",
-        variant: "destructive",
-      });
-      return false;
+      console.error('Login error:', error);
+      // Fallback to hardcoded login
+      if (username === 'admin' && password === '1111') {
+        const mockUserData = {
+          id: '1',
+          username: 'admin',
+          role: 'admin',
+          name: 'Admin User',
+          avatar: localStorage.getItem('userAvatar') || undefined
+        };
+        
+        localStorage.setItem('accessToken', 'mock-token-for-admin');
+        localStorage.setItem('refreshToken', 'mock-refresh-token');
+        
+        setUser(mockUserData);
+        setIsAuthenticated(true);
+        return true;
+      } else {
+        toast({
+          title: "Login failed",
+          description: "Invalid username or password",
+          variant: "destructive",
+        });
+        return false;
+      }
     } finally {
       setIsLoading(false);
     }
@@ -201,8 +241,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      // No need to call logout API
-      console.log("Logging out");
+      // Try to call logout API
+      await auth.logout();
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

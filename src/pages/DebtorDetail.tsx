@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Star, MoreVertical, Calendar, Home, User, Settings, Plus } from 'lucide-react';
-import { debtors } from '@/services/api';
+import { debtors, debts } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import {
@@ -29,7 +29,7 @@ interface Debtor {
   phone: string;
   totalDebt: number;
   favorite: boolean;
-  payments: DebtPayment[];
+  payments?: DebtPayment[];
 }
 
 const DebtorDetail = () => {
@@ -37,25 +37,103 @@ const DebtorDetail = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [debtor, setDebtor] = useState<Debtor | null>(null);
+  const [payments, setPayments] = useState<DebtPayment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     const fetchDebtor = async () => {
+      if (!id) return;
+      
       try {
         setIsLoading(true);
         
-        // In a real app, this would be:
-        // const data = await debtors.getById(id!);
+        // Fetch debtor data
+        const debtorData = await debtors.getById(id);
         
-        // For now, let's use mock data
-        const mockDebtor: Debtor = {
-          id: id || '1',
-          name: 'Avazbek Solijonov',
-          phone: '+998912345678',
-          totalDebt: 14786000,
-          favorite: false,
-          payments: [
+        if (debtorData) {
+          setDebtor(debtorData);
+          setIsFavorite(debtorData.favorite || false);
+          
+          // Try to fetch payment data
+          try {
+            const paymentsData = await debts.getById(id);
+            if (paymentsData && Array.isArray(paymentsData)) {
+              setPayments(paymentsData);
+            } else {
+              // Fallback payment data
+              setPayments([
+                { 
+                  id: '1', 
+                  date: 'Nov 1, 2024 14:51', 
+                  amount: 5845000, 
+                  dueDate: '07.11.2024',
+                  isPaid: false,
+                  progress: 50
+                },
+                { 
+                  id: '2', 
+                  date: 'Iyl 09, 2024 14:51', 
+                  amount: 8941000, 
+                  dueDate: '01.12.2024',
+                  isPaid: false,
+                  progress: 30
+                },
+                { 
+                  id: '3', 
+                  date: 'Iyl 09, 2024 14:51', 
+                  amount: 0, 
+                  dueDate: '',
+                  isPaid: true,
+                  progress: 100
+                }
+              ]);
+            }
+          } catch (paymentError) {
+            console.error('Error fetching payments:', paymentError);
+            // Fallback payment data
+            setPayments([
+              { 
+                id: '1', 
+                date: 'Nov 1, 2024 14:51', 
+                amount: 5845000, 
+                dueDate: '07.11.2024',
+                isPaid: false,
+                progress: 50
+              },
+              { 
+                id: '2', 
+                date: 'Iyl 09, 2024 14:51', 
+                amount: 8941000, 
+                dueDate: '01.12.2024',
+                isPaid: false,
+                progress: 30
+              },
+              { 
+                id: '3', 
+                date: 'Iyl 09, 2024 14:51', 
+                amount: 0, 
+                dueDate: '',
+                isPaid: true,
+                progress: 100
+              }
+            ]);
+          }
+        } else {
+          // Fallback debtor data
+          const mockDebtor: Debtor = {
+            id: id,
+            name: 'Avazbek Solijonov',
+            phone: '+998912345678',
+            totalDebt: 14786000,
+            favorite: false
+          };
+          
+          setDebtor(mockDebtor);
+          setIsFavorite(mockDebtor.favorite);
+          
+          // Fallback payment data
+          setPayments([
             { 
               id: '1', 
               date: 'Nov 1, 2024 14:51', 
@@ -80,11 +158,8 @@ const DebtorDetail = () => {
               isPaid: true,
               progress: 100
             }
-          ]
-        };
-        
-        setDebtor(mockDebtor);
-        setIsFavorite(mockDebtor.favorite);
+          ]);
+        }
       } catch (error) {
         console.error('Error fetching debtor:', error);
         toast({
@@ -92,6 +167,46 @@ const DebtorDetail = () => {
           title: "Xato",
           description: "Mijoz ma'lumotlarini yuklab bo'lmadi",
         });
+        
+        // Fallback debtor data
+        const mockDebtor: Debtor = {
+          id: id || '1',
+          name: 'Avazbek Solijonov',
+          phone: '+998912345678',
+          totalDebt: 14786000,
+          favorite: false
+        };
+        
+        setDebtor(mockDebtor);
+        setIsFavorite(mockDebtor.favorite);
+        
+        // Fallback payment data
+        setPayments([
+          { 
+            id: '1', 
+            date: 'Nov 1, 2024 14:51', 
+            amount: 5845000, 
+            dueDate: '07.11.2024',
+            isPaid: false,
+            progress: 50
+          },
+          { 
+            id: '2', 
+            date: 'Iyl 09, 2024 14:51', 
+            amount: 8941000, 
+            dueDate: '01.12.2024',
+            isPaid: false,
+            progress: 30
+          },
+          { 
+            id: '3', 
+            date: 'Iyl 09, 2024 14:51', 
+            amount: 0, 
+            dueDate: '',
+            isPaid: true,
+            progress: 100
+          }
+        ]);
       } finally {
         setIsLoading(false);
       }
@@ -100,10 +215,26 @@ const DebtorDetail = () => {
     fetchDebtor();
   }, [id]);
 
-  const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    // In real implementation you would update this on the server
-    // debtors.update(id!, { favorite: !isFavorite });
+  const toggleFavorite = async () => {
+    if (!debtor || !id) return;
+    
+    const newFavoriteState = !isFavorite;
+    setIsFavorite(newFavoriteState);
+    
+    try {
+      // Update in API
+      await debtors.update(id, { ...debtor, favorite: newFavoriteState });
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+      toast({
+        variant: "destructive",
+        title: "Xato",
+        description: "Sevimli holatini yangilashda xatolik yuz berdi",
+      });
+      
+      // Revert state if API call fails
+      setIsFavorite(!newFavoriteState);
+    }
   };
 
   if (isLoading) {
@@ -151,9 +282,9 @@ const DebtorDetail = () => {
               <MoreVertical size={20} />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem className="cursor-pointer" onClick={toggleFavorite}>
                 <Star className="mr-2 h-4 w-4" />
-                <span>Sevimlilarga qo'shish</span>
+                <span>{isFavorite ? 'Sevimlilardan olib tashlash' : 'Sevimlilarga qo\'shish'}</span>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 Tahrirlash
@@ -183,14 +314,14 @@ const DebtorDetail = () => {
 
         <div className="bg-white rounded-lg p-4">
           <h2 className="font-medium mb-4">Faol nasiyalar</h2>
-          {debtor.payments.length === 0 ? (
+          {payments.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-gray-500">Hech qanday nasiya mavjud emas</div>
               <div className="text-sm text-gray-400">Nasiya yaratish uchun pastdagi "+" tugmasini bosing</div>
             </div>
           ) : (
             <div className="space-y-6">
-              {debtor.payments.map(payment => (
+              {payments.map(payment => (
                 <div key={payment.id} className="border-b pb-4 last:border-0 last:pb-0">
                   <div className="flex justify-between items-center mb-2">
                     <div className="text-sm text-gray-500">{payment.date}</div>

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,7 @@ const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [totalDebt, setTotalDebt] = useState(135214200);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // If user is already logged in, redirect to dashboard
@@ -21,14 +21,17 @@ const Index = () => {
     
     // Fetch total debt statistics
     const fetchTotalDebt = async () => {
+      setIsLoading(true);
       try {
         const data = await stores.getStatistics();
-        if (data && data.totalDebt) {
+        if (data && data.totalDebt !== undefined) {
           setTotalDebt(data.totalDebt);
         }
       } catch (error) {
         console.error('Error fetching stats:', error);
         // Keep fallback data in state
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -51,7 +54,11 @@ const Index = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-white text-opacity-80">Umumiy nasiya:</p>
-                  <h2 className="text-2xl font-bold">{formatUZCurrency(totalDebt)} so'm</h2>
+                  {isLoading ? (
+                    <div className="h-8 w-32 bg-white bg-opacity-20 rounded animate-pulse"></div>
+                  ) : (
+                    <h2 className="text-2xl font-bold">{formatUZCurrency(totalDebt)} so'm</h2>
+                  )}
                 </div>
                 <Eye size={24} className="text-white" />
               </div>
