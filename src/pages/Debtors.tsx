@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, User, Home, CalendarDays, Settings, Plus, Star, Menu, Folder, Eye } from 'lucide-react';
-import { debtors } from '@/services/api';
+import { debtors, stores } from '@/services/api';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -88,7 +88,7 @@ const Debtors = () => {
 
     const fetchTotalDebt = async () => {
       try {
-        const storeData = await debtors.getStoreDebts();
+        const storeData = await stores.getStoreDebts();
         if (storeData && typeof storeData.totalDebt === 'number') {
           setTotalStoreDebt(storeData.totalDebt);
         }
